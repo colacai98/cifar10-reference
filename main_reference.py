@@ -1,6 +1,9 @@
 import torch.optim as optim
 import torch
 from torch import nn
+from model_reference import *
+from dataloader_reference import *
+net = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -39,9 +42,6 @@ dataiter = iter(testloader)
 images, labels = dataiter.next()
 
 # print images
-imshow(torchvision.utils.make_grid(images))
-print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
-net = Net()
 net.load_state_dict(torch.load(PATH))
 outputs = net(images)
 
