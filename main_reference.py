@@ -3,7 +3,11 @@ import torch
 from torch import nn
 from model_reference import *
 from dataloader_reference import *
-net = Net()
+
+
+device = torch.device('cuda:0') if torch.cuda.is_available() else 'cpu'
+print(device)
+net = Net().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -13,7 +17,7 @@ for epoch in range(2):  # loop over the dataset multiple times
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
+        inputs, labels = data[0].to(device),data[1].to(device)
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -40,6 +44,7 @@ torch.save(net.state_dict(), PATH)
 
 dataiter = iter(testloader)
 images, labels = dataiter.next()
+images, labels = images.to(device), labels.to(device)
 
 # print images
 net.load_state_dict(torch.load(PATH))
@@ -54,7 +59,7 @@ correct = 0
 total = 0
 with torch.no_grad():
     for data in testloader:
-        images, labels = data
+        images, labels = data[0].to(device),data[1].to(device)
         outputs = net(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
@@ -68,7 +73,7 @@ class_correct = list(0. for i in range(10))
 class_total = list(0. for i in range(10))
 with torch.no_grad():
     for data in testloader:
-        images, labels = data
+        images, labels = data[0].to(device),data[1].to(device)
         outputs = net(images)
         _, predicted = torch.max(outputs, 1)
         c = (predicted == labels).squeeze()
